@@ -62,7 +62,7 @@ server_header sh ;
 
 char * hostip = 0x0 ;
 int port_num = -1 ;
-char * filepath = 0x0 ;
+char * file_path = 0x0 ;
 char * dest_dir = 0x0 ;
 
 const int buf_size = 512 ;
@@ -110,7 +110,7 @@ get_option(int argc, char * argv[])
 {
     // parse the command-line argument and assign values
 
-    // fshare <host-ip:port-num> <command> <filepath> <directory-name>
+    // fshare <host-ip:port-num> <command> <file_path> <directory-name>
     // fshare 192.168.0.1:8080 list
     // fshare 192.168.0.1:8080 get hello.txt ./dest
     // fshare 192.168.0.1:8080 put hi.txt
@@ -160,18 +160,21 @@ get_option(int argc, char * argv[])
     }
     // set file path and destination directory 
     if (ch.command == get || ch.command == put) {
-        filepath = (char *) malloc(strlen(argv[optind + 2] + 1)) ;
-        if (filepath == NULL) {
+        file_path = (char *) malloc(strlen(argv[optind + 2]) + 1) ;
+        if (file_path == NULL) {
             fprintf(stderr, "Failed to allocate a memory...\n") ;
             return ;
         }
-        strcpy(filepath, argv[optind + 2]) ;
-        dest_dir = (char *) malloc(strlen(argv[optind + 3] + 1)) ;
+        strcpy(file_path, argv[optind + 2]) ;
+        file_path[strlen(argv[optind + 2])] = '\0' ;
+        
+        dest_dir = (char *) malloc(strlen(argv[optind + 3]) + 1) ;
         if (dest_dir == NULL) {
             fprintf(stderr, "Failed to allocate a memory...\n") ;
             return ;
         }
         strcpy(dest_dir, argv[optind + 3]) ;
+        dest_dir[strlen(argv[optind + 3])] = '\0' ;
     }
 
     // check if options were provided
@@ -181,7 +184,7 @@ get_option(int argc, char * argv[])
     }
 
     if (ch.command == get || ch.command == put) {
-        if (filepath == NULL || dest_dir == NULL) {
+        if (file_path == NULL || dest_dir == NULL) {
             print_usage() ;
             return ;
         }
@@ -205,10 +208,10 @@ request(const int sock_fd)
         - get a/hello.txt b/c : send "get" + strlen("a/hello.txt") + strlen(b/c) + a/hello.txt
         - put x/hi.txt y/z    : send "put" + sizeof("x/hi.txt") + content of "x/hi.txt"
     */
-
     int sent ;
     int sent_check = sizeof(ch) ;
     char * chp = (char *) &ch ;
+    char * ptr ;
 
     if (ch.command == list) {
         ch.payload_size = 0 ;
@@ -220,7 +223,7 @@ request(const int sock_fd)
         } 
         printf(">> List request completed!\n") ;
     } else if (ch.command == get) {
-        ch.src_path_len = strlen(filepath) ;
+        ch.src_path_len = strlen(file_path) ;
         ch.des_path_len = 0 ;
         ch.payload_size = ch.src_path_len + ch.des_path_len ;
         while (sent_check > 0 && (sent = send(sock_fd, &ch, sent_check, 0)) > 0) { // send header
@@ -228,25 +231,26 @@ request(const int sock_fd)
             sent_check -= sent ;
         }
         sent_check = ch.payload_size ;
-        while (sent_check > 0 && (sent = send(sock_fd, filepath, sent_check, 0)) > 0) { // send payload
-            filepath += sent ;
+        ptr = file_path ;
+        while (sent_check > 0 && (sent = send(sock_fd, file_path, sent_check, 0)) > 0) { // send payload
+            ptr += sent ;
             sent_check -= sent ;
         }
         printf(">> Get request completed!\n") ;
     } else { // ch.command == put
-        ch.src_path_len = strlen(filepath) ;
+        ch.src_path_len = strlen(file_path) ;
         ch.des_path_len = strlen(dest_dir) ;
 
         struct stat filestat ;
-        if (lstat(filepath, &filestat) == -1) {
-            fprintf(stderr, "Failed to get a file status of %s\n", filepath) ;
+        if (lstat(file_path, &filestat) == -1) {
+            fprintf(stderr, "Failed to get a file status of %s\n", file_path) ;
             return ;
         }
         ch.payload_size = ch.src_path_len + ch.des_path_len + filestat.st_size ;
         
-        FILE * fp = fopen(filepath, "rb") ;
+        FILE * fp = fopen(file_path, "rb") ;
         if (fp == NULL) {
-            fprintf(stderr, "Failed to open a file %s\n", filepath) ;
+            fprintf(stderr, "Failed to open a file %s\n", file_path) ;
             return ;
         }
         
@@ -256,12 +260,13 @@ request(const int sock_fd)
         } 
 
         send_payload = (char *) malloc(ch.src_path_len + ch.des_path_len + 1) ;
-        strcpy(send_payload, filepath) ;
+        strcpy(send_payload, file_path) ;
         strcat(send_payload, dest_dir) ;
 
+        ptr = send_payload ;
         sent_check = ch.src_path_len + ch.src_path_len ;
         while (sent_check > 0 && 0 < (sent = send(sock_fd, send_payload, sent_check, 0))) {
-            send_payload += sent ;
+            ptr += sent ;
             sent_check -= sent ;
         }
 
@@ -359,18 +364,17 @@ receive_get_response(int sock_fd)
 {
     int received ;
     if ((received = recv(sock_fd, &sh, sizeof(sh), 0)) != sizeof(sh)) { // receive server header
-        perror("receive error : ") ;
+        perror("receive server header error : ") ;
         return ;
     } 
-    
     if (sh.is_error != 0) {
         perror("response error : ") ;
         return ;
     }
-
-    int file_len = strlen(dest_dir) + 1 + strlen(basename(filepath)) + 1 ;
+    
+    int file_len = strlen(dest_dir) + 1 + strlen(basename(file_path)) + 1 ;
     char * file_towrite = (char *) malloc(file_len) ;
-    snprintf(file_towrite, file_len, "%s/%s", dest_dir, basename(filepath)) ;
+    snprintf(file_towrite, file_len, "%s/%s", dest_dir, basename(file_path)) ;
 
     make_directory(file_towrite) ;
 
@@ -409,7 +413,7 @@ receive_put_response(int sock_fd)
         perror("response error : ") ;
         return ;
     }
-    printf(">> Writing %s on server succesfully completed!\n", basename(filepath)) ;
+    printf(">> Writing %s on server succesfully completed!\n", basename(file_path)) ;
 }
 
 void

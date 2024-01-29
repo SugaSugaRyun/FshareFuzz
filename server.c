@@ -232,6 +232,12 @@ get_response(int conn)
     sh.is_error = 0 ;
     sh.payload_size = filestat.st_size ;
 
+    int sent ;
+    if ((sent = send(conn, &sh, sizeof(sh), 0)) != sizeof(sh)) { // send server header
+        perror("send error 1 : ") ;
+        return ;
+    }
+
     // 파일 열어서 읽고, 그 내용을 send
     FILE * fp = fopen(recv_payload, "rb") ;
     if (fp == NULL) {
@@ -240,12 +246,6 @@ get_response(int conn)
         return ;
     }
     free(recv_payload) ;
-
-    int sent ;
-    if ((sent = send(conn, &sh, sizeof(sh), 0)) != sizeof(sh)) { // send server header
-        perror("send error 1 : ") ;
-        return ;
-    }
 
     char buf[buf_size] ;
     int read_size ;
@@ -296,24 +296,26 @@ put_response(int conn)
         free(recv_payload) ;
         return ;
     }
-    char * filename = (char *) malloc(strlen(basename(recv_payload)) + 1) ;
-    filename = basename(recv_payload) ;
+    char * file_name = (char *) malloc(strlen(basename(recv_payload)) + 1) ;
+    strcpy(file_name, basename(recv_payload)) ;
     free(recv_payload) ;
 
     // destination path from the payload
     recv_payload = (char *) malloc(ch.des_path_len) ;
     if ((received = recv(conn, recv_payload, ch.des_path_len, 0)) != ch.des_path_len) {
         perror("receive error destination : ") ;
-        free(filename) ;
+        free(file_name) ;
         free(recv_payload) ;
         return ;
     }
     
-    int file_len = ch.des_path_len + 1 + strlen(filename) + 1 ;
+    int file_len = ch.des_path_len + 1 + strlen(file_name) + 1 ;
     char * file_towrite = (char *) malloc(file_len) ;
-    snprintf(file_towrite, file_len, "%s/%s", recv_payload, filename) ;
-    free(filename) ;
+    snprintf(file_towrite, file_len, "%s/%s", recv_payload, file_name) ;
+    free(file_name) ;
     free(recv_payload) ;
+
+    printf("checking : put destination %s\n", file_towrite) ;
 
     make_directory(file_towrite) ;
 
@@ -345,8 +347,6 @@ put_response(int conn)
         perror("send error : ") ;
         return ;
     }
-
-    printf(">> Get response completed!\n") ;
 }
 
 void *
