@@ -1,10 +1,15 @@
-all: fshare fshared
+CC = gcc
+SERVER = server
+CLIENT = client
+LIBS = -pthread
 
-fshare: fshare.c
-	gcc -g -o fshare fshare.c
+all: server client
 
-fshared: fshared.c
-	gcc -g -pthread -o fshared fshared.c
+client: $(CLIENT).c 
+	gcc -g -o $@.out $^
+
+server: $(SERVER).c
+	gcc -g -o $@.out $^ $(LIBS)
 
 clean:
-	rm -rf fshare fshared
+	rm -rf *.out
