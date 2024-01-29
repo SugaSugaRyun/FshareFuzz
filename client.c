@@ -62,7 +62,7 @@ server_header sh ;
 
 char * hostip = 0x0 ;
 int port_num = -1 ;
-char * filepath = 0x0 ;
+char * file_path = 0x0 ;
 char * dest_dir = 0x0 ;
 
 const int buf_size = 512 ;
@@ -165,13 +165,16 @@ get_option(int argc, char * argv[])
             fprintf(stderr, "Failed to allocate a memory...\n") ;
             return ;
         }
-        strcpy(filepath, argv[optind + 2]) ;
-        dest_dir = (char *) malloc(strlen(argv[optind + 3] + 1)) ;
+        strcpy(file_path, argv[optind + 2]) ;
+        file_path[strlen(argv[optind + 2])] = '\0' ;
+        
+        dest_dir = (char *) malloc(strlen(argv[optind + 3]) + 1) ;
         if (dest_dir == NULL) {
             fprintf(stderr, "Failed to allocate a memory...\n") ;
             return ;
         }
         strcpy(dest_dir, argv[optind + 3]) ;
+        dest_dir[strlen(argv[optind + 3])] = '\0' ;
     }
 
     // check if options were provided
@@ -181,7 +184,7 @@ get_option(int argc, char * argv[])
     }
 
     if (ch.command == get || ch.command == put) {
-        if (filepath == NULL || dest_dir == NULL) {
+        if (file_path == NULL || dest_dir == NULL) {
             print_usage() ;
             return ;
         }

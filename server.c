@@ -136,14 +136,14 @@ get_option(int argc, char * argv[])
                     fprintf(stderr, "Unknown option -%c.\n", optopt) ;
                 }
                 print_usage() ;
-                exit(EXIT_FAILURE);
+                return ;
         }
     }
 
     // Check if both options were provided
     if (port_num == -1 || server_dir == NULL) {
         print_usage() ;
-        exit(EXIT_FAILURE);
+        return ;
     }
 
     return ;
