@@ -1,2 +1,5 @@
 .DS*
 *.out
+CMakeCache.txt
+CMakeFiles/
+TESTING/

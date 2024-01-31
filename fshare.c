@@ -28,20 +28,24 @@
 #include <sys/stat.h>
 #include <libgen.h>
 #include <errno.h>
+#include <pthread.h>
+#include "fshare.h"
 
+/*
 typedef enum {
     list,
     get,
     put,
     N_cmd
 } cmd ;
+*/
 
 char * cmd_str[N_cmd] = {
-	"list",
-    "get",
-    "put"
+   "list",
+   "get",
+   "put"
 } ;
-
+/*
 typedef struct {
     cmd command ;
     int src_path_len ;
@@ -53,6 +57,7 @@ typedef struct {
     int is_error ; // on success 0, on error 1
     int payload_size ;
 } server_header ;
+*/
 
 char * recv_payload = 0x0 ;
 char * send_payload = 0x0 ;
@@ -62,7 +67,7 @@ server_header sh ;
 
 char * hostip = 0x0 ;
 int port_num = -1 ;
-char * file_path = 0x0 ;
+char * src_path = 0x0 ;
 char * dest_dir = 0x0 ;
 
 const int buf_size = 512 ;
@@ -91,12 +96,12 @@ send_bytes(int fd, char * buf, size_t len)
 cmd
 get_cmd_code (char * s)
 {
-	for (int i = 0 ; i < N_cmd ; i++) {
-	 	if (strcmp(s, cmd_str[i]) == 0) {
-			return i ;
-		}
-	}
-	return N_cmd ;
+   for (int i = 0 ; i < N_cmd ; i++) {
+       if (strcmp(s, cmd_str[i]) == 0) {
+         return i ;
+      }
+   }
+   return N_cmd ;
 }
 
 void 
@@ -105,7 +110,7 @@ print_usage()
     printf("Usage: ./fshare <host-ip:port-number> <command> <filepath (if necessary)>\n");
 }
 
-void
+int 
 get_option(int argc, char * argv[])
 {
     // parse the command-line argument and assign values
@@ -115,32 +120,33 @@ get_option(int argc, char * argv[])
     // fshare 192.168.0.1:8080 get hello.txt ./dest
     // fshare 192.168.0.1:8080 put hi.txt
 
+    if (argc < 3) { // at least two argument is required : <host-ip:port-number> <command>
+        print_usage();
+        return 1;
+    }
+
     int option ;
     while ((option = getopt(argc, argv, "h")) != -1) { 
         switch (option) {
             case 'h':
                 print_usage() ;
-                return ;
+                break;
             case '?':
                 fprintf(stderr, "Unknown option -%c.\n", optopt) ;
-                return ;
+                return 1;
         }
     }
 
-    if (argc < 3) { // at least two argument is required : <host-ip:port-number> <command>
-        print_usage();
-        return;
-    }
-
     // extract IP address and port from <host-ip:port-number>
-    char * host_port = argv[optind] ; 
+    char * host_port = strdup(argv[optind]) ; 
+    
     char * colon_ptr = strchr(host_port, ':') ; // find the position of the colon
     if (colon_ptr == NULL) {
         fprintf(stderr, "Invalid format for <host-ip:port-number>.\n") ;
         print_usage() ;
-        return ;
+        return 1;
     }
-    * colon_ptr = '\0'; // replace the colon with null-terminator to separate IP and port strings
+    *colon_ptr = '\0'; // replace the colon with null-terminator to separate IP and port strings
 
     // get host IP
     hostip = strdup(host_port) ;
@@ -149,48 +155,50 @@ get_option(int argc, char * argv[])
     port_num = atoi(colon_ptr + 1);
     if (port_num < 1023 || port_num > 49151) {
         fprintf(stderr, "Range of port number should be [1024, 49150]\n") ;
-        return ;
+        return 1;
     }
     
+    
     // get and set user-command
-    char * user_command = argv[optind + 1] ; 
+    //char * user_command = argv[optind + 1] ; 
+    char *user_command = argv[2];
     if ((ch.command = get_cmd_code(user_command)) == N_cmd) { // set command on the header
         fprintf(stderr, "Wrong command.\n") ;
-        return ;
+        return 1;
     }
     // set file path and destination directory 
     if (ch.command == get || ch.command == put) {
-        file_path = (char *) malloc(strlen(argv[optind + 2]) + 1) ;
-        if (file_path == NULL) {
+        src_path = (char *) malloc(strlen(argv[optind + 2]) + 1) ;
+        if (src_path == NULL) {
             fprintf(stderr, "Failed to allocate a memory...\n") ;
-            return ;
+            return 1;
         }
-        strcpy(file_path, argv[optind + 2]) ;
-        file_path[strlen(argv[optind + 2])] = '\0' ;
+        strcpy(src_path, argv[optind + 2]) ;
+        src_path[strlen(src_path)] = '\0' ;
         
         dest_dir = (char *) malloc(strlen(argv[optind + 3]) + 1) ;
         if (dest_dir == NULL) {
             fprintf(stderr, "Failed to allocate a memory...\n") ;
-            return ;
+            return 1;
         }
         strcpy(dest_dir, argv[optind + 3]) ;
-        dest_dir[strlen(argv[optind + 3])] = '\0' ;
+        dest_dir[strlen(dest_dir)] = '\0' ;
     }
 
     // check if options were provided
     if (hostip == NULL || port_num == -1 || user_command == NULL) {
         print_usage() ;
-        return ;
+        return 1;
     }
 
     if (ch.command == get || ch.command == put) {
-        if (file_path == NULL || dest_dir == NULL) {
+        if (src_path == NULL || dest_dir == NULL) {
             print_usage() ;
-            return ;
+            return 1;
         }
     }
 
-    return ;
+    return 0;
 }
 
 char *
@@ -223,49 +231,49 @@ request(const int sock_fd)
         } 
         printf(">> List request completed!\n") ;
     } else if (ch.command == get) {
-        ch.src_path_len = strlen(file_path) ;
+        ch.src_path_len = strlen(src_path) ;
         ch.des_path_len = 0 ;
         ch.payload_size = ch.src_path_len + ch.des_path_len ;
-        while (sent_check > 0 && (sent = send(sock_fd, &ch, sent_check, 0)) > 0) { // send header
+        while (sent_check > 0 && (sent = send(sock_fd, chp, sent_check, 0)) > 0) { // send header
             chp += sent ;
             sent_check -= sent ;
         }
         sent_check = ch.payload_size ;
-        ptr = file_path ;
-        while (sent_check > 0 && (sent = send(sock_fd, file_path, sent_check, 0)) > 0) { // send payload
+        ptr = src_path ;
+        while (sent_check > 0 && (sent = send(sock_fd, ptr, sent_check, 0)) > 0) { // send payload
             ptr += sent ;
             sent_check -= sent ;
         }
         printf(">> Get request completed!\n") ;
     } else { // ch.command == put
-        ch.src_path_len = strlen(file_path) ;
+        ch.src_path_len = strlen(src_path) ;
         ch.des_path_len = strlen(dest_dir) ;
 
         struct stat filestat ;
-        if (lstat(file_path, &filestat) == -1) {
-            fprintf(stderr, "Failed to get a file status of %s\n", file_path) ;
+        if (lstat(src_path, &filestat) == -1) {
+            fprintf(stderr, "Failed to get a file status of %s\n", src_path) ;
             return ;
         }
         ch.payload_size = ch.src_path_len + ch.des_path_len + filestat.st_size ;
         
-        FILE * fp = fopen(file_path, "rb") ;
+        FILE * fp = fopen(src_path, "rb") ;
         if (fp == NULL) {
-            fprintf(stderr, "Failed to open a file %s\n", file_path) ;
+            fprintf(stderr, "Failed to open a file %s\n", src_path) ;
             return ;
         }
         
-        while (sent_check > 0 && 0 < (sent = send(sock_fd, &ch, sent_check, 0))) { // send header
+        while (sent_check > 0 && 0 < (sent = send(sock_fd, chp, sent_check, 0))) { // send header
             chp += sent ;
             sent_check -= sent ;
         } 
 
         send_payload = (char *) malloc(ch.src_path_len + ch.des_path_len + 1) ;
-        strcpy(send_payload, file_path) ;
+        strcpy(send_payload, src_path) ;
         strcat(send_payload, dest_dir) ;
 
         ptr = send_payload ;
         sent_check = ch.src_path_len + ch.src_path_len ;
-        while (sent_check > 0 && 0 < (sent = send(sock_fd, send_payload, sent_check, 0))) {
+        while (sent_check > 0 && 0 < (sent = send(sock_fd, ptr, sent_check, 0))) {
             ptr += sent ;
             sent_check -= sent ;
         }
@@ -372,9 +380,9 @@ receive_get_response(int sock_fd)
         return ;
     }
     
-    int file_len = strlen(dest_dir) + 1 + strlen(basename(file_path)) + 1 ;
+    int file_len = strlen(dest_dir) + 1 + strlen(basename(src_path)) + 1 ;
     char * file_towrite = (char *) malloc(file_len) ;
-    snprintf(file_towrite, file_len, "%s/%s", dest_dir, basename(file_path)) ;
+    snprintf(file_towrite, file_len, "%s/%s", dest_dir, basename(src_path)) ;
 
     make_directory(file_towrite) ;
 
@@ -413,7 +421,7 @@ receive_put_response(int sock_fd)
         perror("response error : ") ;
         return ;
     }
-    printf(">> Writing %s on server succesfully completed!\n", basename(file_path)) ;
+    printf(">> Writing %s on server succesfully completed!\n", basename(src_path)) ;
 }
 
 void
@@ -427,10 +435,15 @@ receive_response(int sock_fd)
         receive_put_response(sock_fd) ;
 }
 
+
+#ifndef TEST
 int
 main(int argc, char * argv[])
 {
-    get_option(argc, argv) ;
+    if(get_option(argc, argv)){
+   fprintf(stderr, "ERROR: get_option()\n");
+   return 1;
+    }
     
     /* Connect socket */
 
@@ -473,3 +486,4 @@ main(int argc, char * argv[])
     
     return 0 ;
 }
+#endif

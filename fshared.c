@@ -33,7 +33,7 @@ typedef enum {
 } cmd ;
 
 char * cmd_str[N_cmd] = {
-	"list",
+   "list",
     "get",
     "put"
 } ;

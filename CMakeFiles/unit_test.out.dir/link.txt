@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/unit_test.out.dir/gtest_server.cc.o -o unit_test.out  -lgcov googletest/googlemock/gtest/libgtest.a googletest/googlemock/gtest/libgtest_main.a libserver.a googletest/googlemock/gtest/libgtest.a -lpthread -lgcov 
