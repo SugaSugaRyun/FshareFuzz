@@ -1,0 +1,1 @@
+/usr/bin/cc -g -O0 --coverage CMakeFiles/client-test.out.dir/fshare_main.c.o -o client-test.out  -lgcov libclient.a -lgcov 

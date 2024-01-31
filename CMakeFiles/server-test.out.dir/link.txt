@@ -1,0 +1,1 @@
+/usr/bin/cc -g -O0 --coverage CMakeFiles/server-test.out.dir/fshared_main.c.o -o server-test.out  -lgcov libserver.a -lpthread -lgcov 
