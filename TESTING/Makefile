@@ -87,6 +87,16 @@ install/strip/fast: preinstall/fast
 	/usr/local/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -97,6 +107,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/local/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # Special rule for the target install/local
 install/local: preinstall
@@ -121,27 +142,6 @@ install/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
 	/usr/local/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
-
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/local/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -215,6 +215,19 @@ server-test.out/fast:
 .PHONY : server-test.out/fast
 
 #=============================================================================
+# Target rules for targets named unit_test_s.out
+
+# Build rule for target.
+unit_test_s.out: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 unit_test_s.out
+.PHONY : unit_test_s.out
+
+# fast build rule for target.
+unit_test_s.out/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test_s.out.dir/build.make CMakeFiles/unit_test_s.out.dir/build
+.PHONY : unit_test_s.out/fast
+
+#=============================================================================
 # Target rules for targets named client-test.out
 
 # Build rule for target.
@@ -228,17 +241,17 @@ client-test.out/fast:
 .PHONY : client-test.out/fast
 
 #=============================================================================
-# Target rules for targets named unit_test.out
+# Target rules for targets named unit_test_c.out
 
 # Build rule for target.
-unit_test.out: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 unit_test.out
-.PHONY : unit_test.out
+unit_test_c.out: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 unit_test_c.out
+.PHONY : unit_test_c.out
 
 # fast build rule for target.
-unit_test.out/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.out.dir/build.make CMakeFiles/unit_test.out.dir/build
-.PHONY : unit_test.out/fast
+unit_test_c.out/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test_c.out.dir/build.make CMakeFiles/unit_test_c.out.dir/build
+.PHONY : unit_test_c.out/fast
 
 #=============================================================================
 # Target rules for targets named gmock_main
@@ -400,13 +413,40 @@ fshared_main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/server-test.out.dir/build.make CMakeFiles/server-test.out.dir/fshared_main.c.s
 .PHONY : fshared_main.c.s
 
+gtest_client.o: gtest_client.cc.o
+
+.PHONY : gtest_client.o
+
+# target to build an object file
+gtest_client.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test_c.out.dir/build.make CMakeFiles/unit_test_c.out.dir/gtest_client.cc.o
+.PHONY : gtest_client.cc.o
+
+gtest_client.i: gtest_client.cc.i
+
+.PHONY : gtest_client.i
+
+# target to preprocess a source file
+gtest_client.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test_c.out.dir/build.make CMakeFiles/unit_test_c.out.dir/gtest_client.cc.i
+.PHONY : gtest_client.cc.i
+
+gtest_client.s: gtest_client.cc.s
+
+.PHONY : gtest_client.s
+
+# target to generate assembly for a file
+gtest_client.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test_c.out.dir/build.make CMakeFiles/unit_test_c.out.dir/gtest_client.cc.s
+.PHONY : gtest_client.cc.s
+
 gtest_server.o: gtest_server.cc.o
 
 .PHONY : gtest_server.o
 
 # target to build an object file
 gtest_server.cc.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.out.dir/build.make CMakeFiles/unit_test.out.dir/gtest_server.cc.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test_s.out.dir/build.make CMakeFiles/unit_test_s.out.dir/gtest_server.cc.o
 .PHONY : gtest_server.cc.o
 
 gtest_server.i: gtest_server.cc.i
@@ -415,7 +455,7 @@ gtest_server.i: gtest_server.cc.i
 
 # target to preprocess a source file
 gtest_server.cc.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.out.dir/build.make CMakeFiles/unit_test.out.dir/gtest_server.cc.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test_s.out.dir/build.make CMakeFiles/unit_test_s.out.dir/gtest_server.cc.i
 .PHONY : gtest_server.cc.i
 
 gtest_server.s: gtest_server.cc.s
@@ -424,7 +464,7 @@ gtest_server.s: gtest_server.cc.s
 
 # target to generate assembly for a file
 gtest_server.cc.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.out.dir/build.make CMakeFiles/unit_test.out.dir/gtest_server.cc.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test_s.out.dir/build.make CMakeFiles/unit_test_s.out.dir/gtest_server.cc.s
 .PHONY : gtest_server.cc.s
 
 # Help Target
@@ -447,7 +487,8 @@ help:
 	@echo "... gtest_main"
 	@echo "... server"
 	@echo "... server-test.out"
-	@echo "... unit_test.out"
+	@echo "... unit_test_c.out"
+	@echo "... unit_test_s.out"
 	@echo "... LIBS/client.o"
 	@echo "... LIBS/client.i"
 	@echo "... LIBS/client.s"
@@ -460,6 +501,9 @@ help:
 	@echo "... fshared_main.o"
 	@echo "... fshared_main.i"
 	@echo "... fshared_main.s"
+	@echo "... gtest_client.o"
+	@echo "... gtest_client.i"
+	@echo "... gtest_client.s"
 	@echo "... gtest_server.o"
 	@echo "... gtest_server.i"
 	@echo "... gtest_server.s"

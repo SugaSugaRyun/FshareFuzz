@@ -37,27 +37,6 @@ char * dest_dir = 0x0;
 
 const int buf_size = 512;
 
-int 
-send_bytes(int fd, char * buf, size_t len)
-{
-    // return 0 if all given bytes are succesfully sent
-    // return 1 otherwise
-
-    char * p = buf ;
-    size_t acc = 0 ;
-
-    while (acc < len)
-    {
-        size_t sent ;
-        sent = send(fd, p, len - acc, 0) ;
-        if (sent == -1)
-                return 1 ;
-        p += sent ;
-        acc += sent ;
-    }
-    return 0 ;
-}
-
 cmd
 get_cmd_code (char * s)
 {
