@@ -47,7 +47,6 @@ extern int port_num;
 extern char * server_dir;
 
 extern const int buf_size;
-int send_bytes(int fd, char *buf, size_t len);
 int directory_check(char *filepath);
 void print_usage();
 void get_option(int argc, char *argv[]);

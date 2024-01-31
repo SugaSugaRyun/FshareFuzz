@@ -30,30 +30,6 @@ char * server_dir = 0x0 ;
 
 const int buf_size = 512 ;
 
-/* 
-   send_bytes
-        return 0 if all given bytes are successfully sent
-        return 1 otherwise
-*/
-
-int 
-send_bytes(int fd, char * buf, size_t len)
-{
-    char * p = buf ;
-    size_t acc = 0 ;
-
-    while (acc < len)
-    {
-        size_t sent ;
-        sent = send(fd, p, len - acc, 0) ;
-        if (sent == -1)
-            return 1 ;
-        p += sent ;
-        acc += sent ;
-    }
-    return 0 ;
-}
-
 int
 directory_check(char * filepath)
 {

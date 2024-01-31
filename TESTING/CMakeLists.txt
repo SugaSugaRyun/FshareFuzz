@@ -19,7 +19,6 @@ add_library(client STATIC ${LIB_DIR}/client.c ${LIB_DIR}/client.h)
 set(s_target server-test.out)
 add_executable(${s_target} fshared_main.c)
 target_link_libraries(${s_target} PRIVATE server pthread)
-
 set(c_target client-test.out)
 add_executable(${c_target} fshare_main.c)
 target_link_libraries(${c_target} PRIVATE client)
@@ -30,7 +29,17 @@ add_subdirectory(${gtest_SRC_DIR})
 
 # UNIT TARGET
 include_directories(${gtest_SRC_DIR}/googletest/include)
-set(UNIT_TEST_ELF unit_test.out)
-add_executable(${UNIT_TEST_ELF} gtest_server.cc)
-target_link_libraries(${UNIT_TEST_ELF} gtest gtest_main)
-target_link_libraries(${UNIT_TEST_ELF} server)
+include_directories(${gtest_SRC_DIR}/googlemock/include)
+
+set(UNIT_TEST_ELF_S unit_test_s.out)
+add_executable(${UNIT_TEST_ELF_S} gtest_server.cc)
+target_link_libraries(${UNIT_TEST_ELF_S} gtest gtest_main)
+target_link_libraries(${UNIT_TEST_ELF_S} server)
+set(UNIT_TEST_ELF_C unit_test_c.out)
+add_executable(${UNIT_TEST_ELF_C} gtest_client.cc)
+target_link_libraries(${UNIT_TEST_ELF_C} gtest gtest_main)
+target_link_libraries(${UNIT_TEST_ELF_C} client)
+
+
+
+
