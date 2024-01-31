@@ -67,10 +67,10 @@ RM = /usr/local/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/s21900059/winter/FshareFuzz/TESTING
+CMAKE_SOURCE_DIR = /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/s21900059/winter/FshareFuzz/TESTING
+CMAKE_BINARY_DIR = /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -145,9 +145,9 @@ list_install_components/fast: list_install_components
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/s21900059/winter/FshareFuzz/TESTING/CMakeFiles /home/s21900059/winter/FshareFuzz/TESTING//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING/CMakeFiles /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/s21900059/winter/FshareFuzz/TESTING/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

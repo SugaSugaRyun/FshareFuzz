@@ -1,4 +1,4 @@
-# Install script for directory: /home/s21900059/winter/FshareFuzz/TESTING/googletest
+# Install script for directory: /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING/googletest
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/s21900059/winter/FshareFuzz/TESTING/googletest/googlemock/cmake_install.cmake")
+  include("/home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING/googletest/googlemock/cmake_install.cmake")
 
 endif()
 
