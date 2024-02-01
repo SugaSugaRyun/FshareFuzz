@@ -3,19 +3,21 @@
 #include "client.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <iostream>
 #define BUF_SIZE 512
+using namespace std;
 using namespace testing;
-using ::testing::Return;
-using ::testing::SetArgReferee;
-using ::testing::_;
 
 //override
+/*
 ssize_t send (int __fd, const void *__buf, size_t __n, int __flags){
 	return (ssize_t)__n;	
 }
 ssize_t recv (int __fd, void *__buf, size_t __n, int __flags){
 	return (ssize_t)__n;	
 }
+*/
 
 TEST(ClientUnit__Test, get_cmd_code){
 
@@ -77,32 +79,13 @@ TEST(ClientUnit__Test, get_option){
 }
 
 TEST(ClientUnit__Test, parse_directory){
-
 	char toparse[BUF_SIZE];
 	strcpy(toparse, "dir/dir/file");
 	char* parsed = parse_directory(toparse);
 	EXPECT_STREQ(parsed, "dir/dir");
-
 }
 
 /*
-class Vclass {
-    public:
-        virtual ~Vclass() {}
-        virtual ssize_t send(int sockfd, const void* buf,  size_t len, int flags) = 0;
-        virtual ssize_t recv(int sockfd, void* buf,  size_t len, int flags) = 0;
-};
-
-class Mclass: public Vclass{
-    using Vclass::send;
-    using Vclass::recv;
-  public:
-  	MOCK_METHOD(ssize_t, send ,(int sockfd, const void* buf,  size_t len, int flags),(override));
-    MOCK_METHOD(ssize_t, recv,(int sockfd, void* buf,  size_t len, int flags),(override));
-};
-*/
-
-
 //wrapping origin c function mock
 class Vclass{
 public:
@@ -120,41 +103,50 @@ public:
 	MOCK_METHOD4(recv, ssize_t(int __fd, void *__buf, size_t __n, int __flags));
 };
 
-
-	
-
-
 //TODO
 TEST(ClientUnit__Test, request){
 
-Mclass mock;
+//Mclass mock;
 
 //	EXPECT_CALL(mock, send)
 //		.WillOnce(Return(100));
 	
-	send(1, NULL, 1, 1);
 
-/*
-	int rst = vc.send(1, NULL, 1, 1);
-	printf("%d\n", rst);
-
-	int fd[2];
-	char buf[BUF_SIZE];
-	if(pipe(fd) == -1) perror("pipe");
-
-
-	ch.command = list;
-	request(fd[1]);
-	recv(fd[0], buf, 10, 0);
-	printf("	#%s\n", buf);
-
-	ch.command = get;
-	request(fd[1]);
-	ch.command = put;
-	request(fd[1]);
-*/
 
 }
+*/
+
+
+
+class aaA {
+public:
+    ~aaA() {}
+    virtual ssize_t recv(int __fd, void *__buf, size_t __n, int __flags){
+        return 0;
+    }
+};
+
+class MockB : public aaA{
+public:
+    MOCK_METHOD(ssize_t, recv, (int,void*,size_t,int));
+};
+
+
+MockB *mockB;  // B 함수의 mock 객체 생성
+ssize_t recv(int __fd, void *__buf, size_t __n, int __flags){
+	return mockB->recv(__fd, __buf, __n, __flags);
+}
+
+TEST(MyTest, TestAWithMockB) {
+    mockB = new MockB();
+    EXPECT_CALL(*mockB,recv).WillOnce(Return(sizeof(ch)));
+    int hihi = 0;
+    //  int result = mockB.B(1);
+	//recv(1, NULL, 1, 1);
+//    go_thread((void *)&hihi);
+    delete(mockB);
+}
+
 
 /*
 TEST(ClientUnit__Test, receive_list_response){
