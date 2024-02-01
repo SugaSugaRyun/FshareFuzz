@@ -67,10 +67,10 @@ RM = /usr/local/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING
+CMAKE_SOURCE_DIR = /home/s21900059/winter/FshareFuzz/TESTING
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING
+CMAKE_BINARY_DIR = /home/s21900059/winter/FshareFuzz/TESTING
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -89,7 +89,7 @@ install/strip/fast: preinstall/fast
 
 # Special rule for the target list_install_components
 list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"gmock\" \"gtest\""
 .PHONY : list_install_components
 
 # Special rule for the target list_install_components
@@ -145,9 +145,9 @@ install/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING/CMakeFiles /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/s21900059/winter/FshareFuzz/TESTING/CMakeFiles /home/s21900059/winter/FshareFuzz/TESTING//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/s21900059/winter/FshareFuzz/TESTING/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -289,7 +289,7 @@ gtest_main: cmake_check_build_system
 
 # fast build rule for target.
 gtest_main/fast:
-	$(MAKE) $(MAKESILENT) -f googletest/googlemock/gtest/CMakeFiles/gtest_main.dir/build.make googletest/googlemock/gtest/CMakeFiles/gtest_main.dir/build
+	$(MAKE) $(MAKESILENT) -f googletest/googletest/CMakeFiles/gtest_main.dir/build.make googletest/googletest/CMakeFiles/gtest_main.dir/build
 .PHONY : gtest_main/fast
 
 #=============================================================================
@@ -302,7 +302,7 @@ gtest: cmake_check_build_system
 
 # fast build rule for target.
 gtest/fast:
-	$(MAKE) $(MAKESILENT) -f googletest/googlemock/gtest/CMakeFiles/gtest.dir/build.make googletest/googlemock/gtest/CMakeFiles/gtest.dir/build
+	$(MAKE) $(MAKESILENT) -f googletest/googletest/CMakeFiles/gtest.dir/build.make googletest/googletest/CMakeFiles/gtest.dir/build
 .PHONY : gtest/fast
 
 LIBS/client.o: LIBS/client.c.o

@@ -26,6 +26,7 @@ target_link_libraries(${c_target} PRIVATE client)
 # googletest build
 set(gtest_SRC_DIR googletest)
 add_subdirectory(${gtest_SRC_DIR})
+# add_subdirectory(googletest/googlemock)
 
 # UNIT TARGET
 include_directories(${gtest_SRC_DIR}/googletest/include)
@@ -33,7 +34,8 @@ include_directories(${gtest_SRC_DIR}/googlemock/include)
 
 set(UNIT_TEST_ELF_S unit_test_s.out)
 add_executable(${UNIT_TEST_ELF_S} gtest_server.cc)
-target_link_libraries(${UNIT_TEST_ELF_S} gtest gtest_main)
+target_link_libraries(${UNIT_TEST_ELF_S} gtest gtest_main gmock)
+# target_include_directories(${UNIT_TEST_ELF_S} PUBLIC ${gtest_SRC_DIR}/googlemock/include)
 target_link_libraries(${UNIT_TEST_ELF_S} server)
 set(UNIT_TEST_ELF_C unit_test_c.out)
 add_executable(${UNIT_TEST_ELF_C} gtest_client.cc)
