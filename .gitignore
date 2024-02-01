@@ -1,5 +1,6 @@
 .DS*
 *.out
+*.swp
 CMakeCache.txt
 CMakeFiles/
 #TESTING/

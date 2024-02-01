@@ -2,8 +2,9 @@
 #include "gmock/gmock.h"
 #include "client.h"
 #include <stdio.h>
+#include <stdlib.h>
 #define BUF_SIZE 512
-
+using namespace testing;
 
 TEST(ClientUnit__Test, get_cmd_code){
 
@@ -13,12 +14,15 @@ TEST(ClientUnit__Test, get_cmd_code){
 	strcpy(buf, "list");
 	rst = get_cmd_code(buf);
 	EXPECT_EQ(rst, 0);
+
 	strcpy(buf, "get");
 	rst = get_cmd_code(buf);
 	EXPECT_EQ(rst, 1);
+
 	strcpy(buf, "put");
 	rst = get_cmd_code(buf);
 	EXPECT_EQ(rst, 2);
+
 	strcpy(buf, "others");
 	rst = get_cmd_code(buf);
 	EXPECT_EQ(rst, N_cmd);
@@ -48,26 +52,72 @@ TEST(ClientUnit__Test, get_option){
 	strcpy(argv[3], "filepath");
 	strcpy(argv[4], "dest_dir");
 	get_option(argc, argv); 
-	EXPECT_TRUE(PARSE_IPPORT && 
-	1		
-	
-	);
+	EXPECT_TRUE(PARSE_IPPORT && PUTGET_CASE);
+
+	strcpy(argv[1], "127.0.0.1:8080");
+	strcpy(argv[2], "put");
+	strcpy(argv[3], "filepath");
+	strcpy(argv[4], "dest_dir");
+	get_option(argc, argv); 
+	EXPECT_TRUE(PARSE_IPPORT && PUTGET_CASE);
+
 
 }
 
 
 //TEST(ClientUnit__Test, parse_directory){}
 
+class SimpleClass {
+public:
+    virtual int simpleFirstFunction(int a, int b) { return (a + simpleSecondFunction(b)); }
+    virtual int simpleSecondFunction(int b) { return (2 * b); }
+    // virtual ~SimpleClass();
+};
 
-TEST(ClientUnit__Test, reuest){
+class MockSimpleClass : public SimpleClass {
+public:
+    // MOCK_METHOD1(int, simpleSecondFunction, (int b), (override));
+    MOCK_METHOD2(simpleFirstFunction, int(int a, int b));
+};
+
+
 /*
-	size_t len = 10;
-	MockSocket mock;
+class virtualClass{
+public:
+	virtual ssize_t send(int fd, void* buf, size_t len, int flag){return len;}
+	virtual ssize_t recv(int fd, void* buf, size_t len, int flag){return len;}
 
-	EXPECT_CALL(mock, send(_, _, _, _)).WillOnce(Return(0));
-	request(1);
+};
+
+
+class MockMyClass : public virtualClass  {
+public:
+	MOCK_METHOD4(send, ssize_t(int fd, void* buf, size_t len, int flag));
+	MOCK_METHOD4(recv, ssize_t(int fd, void* buf, size_t len, int flag));
+};
 */
-	EXPECT_EQ(0, 0);
+
+
+TEST(ClientUnit__Test, request){
+
+	
+/*
+	int fd[2];
+	char buf[BUF_SIZE];
+	if(pipe(fd) == -1) perror("pipe");
+
+	ch.command = list;
+	request(fd[1]);
+	recv(fd[0], buf, 10, 0);
+	printf("	#%s\n", buf);
+
+	ch.command = get;
+	request(fd[1]);
+	ch.command = put;
+	request(fd[1]);
+*/
+//TODO
+//	EXPECT_EQ(0, 1);
 
 
 }
@@ -80,6 +130,7 @@ TEST(ClientUnit__Test, receive_list_response){
 
 TEST(ClientUnit__Test, make_directory){
 
+	EXPECT_EQ(0, 1);
 
 }
 
@@ -87,17 +138,22 @@ TEST(ClientUnit__Test, make_directory){
 
 TEST(ClientUnit__Test, receive_get_response){
 
+	EXPECT_EQ(0, 1);
+
 }
 
 
 
 TEST(ClientUnit__Test, receive_put_response){
 
+	EXPECT_EQ(0, 1);
 
 }
 
 
 TEST(ClientUnit__Test, receive_response){
+
+	EXPECT_EQ(0, 1);
 
 }
 
