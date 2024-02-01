@@ -1,4 +1,4 @@
-# Install script for directory: /home/s21900059/winter/FshareFuzz/TESTING
+# Install script for directory: /home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/s21900059/winter/FshareFuzz/TESTING/googletest/cmake_install.cmake")
+  include("/home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING/googletest/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -55,5 +55,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/s21900059/winter/FshareFuzz/TESTING/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/leeejjju/Capston/capston-winter/project6_fuzz_Fshare/FshareFuzz/TESTING/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

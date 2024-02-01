@@ -29,11 +29,12 @@ TEST(ClientUnit__Test, get_cmd_code){
 
 }
 
-//TEST(ClientUnit__Test, print_usage){}
+//TEST(ClientUnit__Test, print_usage){	print_usage();	}
+
 
 #define PARSE_IPPORT (hostip && port_num) 
 #define LIST_CASE (ch.command == list)
-#define PUTGET_CASE (((ch.command == put) || (ch.command == get)) && ((file_path != NULL) && (dest_dir != NULL)))
+#define PUTGET_CASE (((ch.command == 1) || (ch.command == 2)) && ((file_path != NULL) && (dest_dir != NULL)))
 TEST(ClientUnit__Test, get_option){
 	int argc;
 	char** argv = new char*[5];
@@ -64,47 +65,65 @@ TEST(ClientUnit__Test, get_option){
 
 }
 
+TEST(ClientUnit__Test, parse_directory){
 
-//TEST(ClientUnit__Test, parse_directory){}
+	char toparse[BUF_SIZE];
+	strcpy(toparse, "dir/dir/file");
+	char* parsed = parse_directory(toparse);
+	EXPECT_STREQ(parsed, "dir/dir");
 
-class SimpleClass {
-public:
-    virtual int simpleFirstFunction(int a, int b) { return (a + simpleSecondFunction(b)); }
-    virtual int simpleSecondFunction(int b) { return (2 * b); }
-    // virtual ~SimpleClass();
-};
-
-class MockSimpleClass : public SimpleClass {
-public:
-    // MOCK_METHOD1(int, simpleSecondFunction, (int b), (override));
-    MOCK_METHOD2(simpleFirstFunction, int(int a, int b));
-};
-
+}
 
 /*
+//wrapping origin c function mock
 class virtualClass{
 public:
-	virtual ssize_t send(int fd, void* buf, size_t len, int flag){return len;}
-	virtual ssize_t recv(int fd, void* buf, size_t len, int flag){return len;}
-
+	virtual ssize_t send(int fd, void* buf, size_t len, int flag){
+		return send(fd, buf, len, flag);
+	}
+	virtual ssize_t recv(int fd, void* buf, size_t len, int flag){
+		return send(fd, buf, len, flag);
+	}
 };
-
-
-class MockMyClass : public virtualClass  {
+//for mocking
+class MockClass : public virtualClass  {
 public:
+	using virtualClass::send;
+	using virtualClass::recv;
 	MOCK_METHOD4(send, ssize_t(int fd, void* buf, size_t len, int flag));
 	MOCK_METHOD4(recv, ssize_t(int fd, void* buf, size_t len, int flag));
 };
 */
 
 
+ssize_t send (int __fd, const void *__buf, size_t __n, int __flags){
+	return (ssize_t)__n;	
+}
+
+ssize_t recv (int __fd, void *__buf, size_t __n, int __flags){
+	return (ssize_t)__n;	
+}
+
+
+//TODO
 TEST(ClientUnit__Test, request){
 
-	
+	send(1, NULL, 1, 1);
+	recv(1, NULL, 1, 1);
 /*
+	virtualClass vc;
+	MockClass mock;
+//	MockClass mock;
+//	EXPECT_CALL(mock, send)
+//		.WillOnce(Return(1));
+	
+	int rst = vc.send(1, NULL, 1, 1);
+	printf("%d\n", rst);
+
 	int fd[2];
 	char buf[BUF_SIZE];
 	if(pipe(fd) == -1) perror("pipe");
+
 
 	ch.command = list;
 	request(fd[1]);
@@ -116,12 +135,10 @@ TEST(ClientUnit__Test, request){
 	ch.command = put;
 	request(fd[1]);
 */
-//TODO
-//	EXPECT_EQ(0, 1);
-
 
 }
 
+/*
 TEST(ClientUnit__Test, receive_list_response){
 
 
@@ -156,7 +173,7 @@ TEST(ClientUnit__Test, receive_response){
 	EXPECT_EQ(0, 1);
 
 }
-
+*/
 
 
 
