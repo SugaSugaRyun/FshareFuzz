@@ -5,6 +5,17 @@
 #include <stdlib.h>
 #define BUF_SIZE 512
 using namespace testing;
+using ::testing::Return;
+using ::testing::SetArgReferee;
+using ::testing::_;
+
+//override
+ssize_t send (int __fd, const void *__buf, size_t __n, int __flags){
+	return (ssize_t)__n;	
+}
+ssize_t recv (int __fd, void *__buf, size_t __n, int __flags){
+	return (ssize_t)__n;	
+}
 
 TEST(ClientUnit__Test, get_cmd_code){
 
@@ -75,48 +86,55 @@ TEST(ClientUnit__Test, parse_directory){
 }
 
 /*
-//wrapping origin c function mock
-class virtualClass{
-public:
-	virtual ssize_t send(int fd, void* buf, size_t len, int flag){
-		return send(fd, buf, len, flag);
-	}
-	virtual ssize_t recv(int fd, void* buf, size_t len, int flag){
-		return send(fd, buf, len, flag);
-	}
+class Vclass {
+    public:
+        virtual ~Vclass() {}
+        virtual ssize_t send(int sockfd, const void* buf,  size_t len, int flags) = 0;
+        virtual ssize_t recv(int sockfd, void* buf,  size_t len, int flags) = 0;
 };
-//for mocking
-class MockClass : public virtualClass  {
-public:
-	using virtualClass::send;
-	using virtualClass::recv;
-	MOCK_METHOD4(send, ssize_t(int fd, void* buf, size_t len, int flag));
-	MOCK_METHOD4(recv, ssize_t(int fd, void* buf, size_t len, int flag));
+
+class Mclass: public Vclass{
+    using Vclass::send;
+    using Vclass::recv;
+  public:
+  	MOCK_METHOD(ssize_t, send ,(int sockfd, const void* buf,  size_t len, int flags),(override));
+    MOCK_METHOD(ssize_t, recv,(int sockfd, void* buf,  size_t len, int flags),(override));
 };
 */
 
 
-ssize_t send (int __fd, const void *__buf, size_t __n, int __flags){
-	return (ssize_t)__n;	
-}
+//wrapping origin c function mock
+class Vclass{
+public:
+    virtual ~Vclass() {}
+	virtual ssize_t send (int __fd, const void *__buf, size_t __n, int __flags){	return send(__fd, __buf, __n, __flags);}
+	virtual ssize_t recv (int __fd, void *__buf, size_t __n, int __flags){	return send(__fd, __buf, __n, __flags);}
+};
 
-ssize_t recv (int __fd, void *__buf, size_t __n, int __flags){
-	return (ssize_t)__n;	
-}
+//for mocking
+class Mclass : public Vclass  {
+public:
+	using Vclass::send;
+	using Vclass::recv;
+	MOCK_METHOD4(send, ssize_t(int __fd, const void *__buf, size_t __n, int __flags));
+	MOCK_METHOD4(recv, ssize_t(int __fd, void *__buf, size_t __n, int __flags));
+};
+
+
+	
 
 
 //TODO
 TEST(ClientUnit__Test, request){
 
-	send(1, NULL, 1, 1);
-	recv(1, NULL, 1, 1);
-/*
-	virtualClass vc;
-	MockClass mock;
-//	MockClass mock;
+Mclass mock;
+
 //	EXPECT_CALL(mock, send)
-//		.WillOnce(Return(1));
+//		.WillOnce(Return(100));
 	
+	send(1, NULL, 1, 1);
+
+/*
 	int rst = vc.send(1, NULL, 1, 1);
 	printf("%d\n", rst);
 
