@@ -46,7 +46,7 @@ directory_check(char * filepath)
 void 
 print_usage() 
 {
-    printf("Usage: ./fshared -p <port-number> -d <directory-to-be-shared>\n");
+    fprintf(stderr,"Usage: ./fshared -p <port-number> -d <directory-to-be-shared>\n");
 }
 
 void
